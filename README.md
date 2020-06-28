@@ -1,2 +1,2 @@
 # no-carcassonne
-√ This is not Carcassonne
+This is not Carcassonne
