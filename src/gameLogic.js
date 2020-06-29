@@ -1,4 +1,4 @@
-const { TILE_TYPE_MAP } = require('./tileTypes');
+const { TILE_TYPE_MAP, START_TILE } = require('./tileTypes');
 const RNG = require('./RNG');
 
 const rng = new RNG();
@@ -29,11 +29,23 @@ function generateTiles(numberToGenerate) {
 }
 
 /**
+ * @returns {Map} First tile
+ */
+
+function pickStartTile() {
+    return START_TILE;
+}
+
+/**
  *
  * @param {Map} stack A list of tiles to remove the tile from.
  * @returns {Object} The removed tile and the updated list of tiles.
  */
 function removeTileFromStack(stack) {
+    if (stack.size === 0) {
+        return { tile: undefined, updatedStack: stack };
+    }
+
     const lastTile = stack.size - 1;
     const tile = stack.get(lastTile);
     const updatedStack = new Map(stack);
@@ -42,10 +54,37 @@ function removeTileFromStack(stack) {
     return { tile, updatedStack };
 }
 
-function compareTiles(tileA, tile) {}
+/**
+ *
+ * @param {Array} nodesA A list of nodes.
+ * @param {Array} nodesB A list of nodes.
+ * @returns {Boolean}
+ */
+function canConnectNodes(nodesA, nodesB) {
+    if (nodesA.length !== 3 || nodesB.length !== 3) {
+        return false;
+    }
+
+    for (let i = 0; i < 3; i++) {
+        const featureA = nodesA[i].feature;
+        const featureB = nodesB[i].feature;
+
+        if (featureA !== featureB) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function createEdges(edges, nodesA, nodesB) {
+    return;
+}
 
 module.exports = {
     rng,
     generateTiles,
-    removeTileFromStack
+    pickStartTile,
+    removeTileFromStack,
+    canConnectNodes
 };
