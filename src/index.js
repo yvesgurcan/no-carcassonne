@@ -13,7 +13,6 @@ let worldTiles = new Map();
  */
 function pickRandomTile(availableTiles) {
     const randomIndex = rng.range(0, availableTiles.size);
-    console.log({ randomIndex });
     return availableTiles.get(randomIndex);
 }
 
