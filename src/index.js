@@ -1,36 +1,29 @@
-const { TILE_TYPE_MAP } = require('./tileTypes');
+const { rng, generateTiles, removeTileFromStack } = require('./gameLogic');
 const { visualizeTiles } = require('./visualize');
-const RNG = require('./RNG');
+const { START_TILE } = require('./tileTypes');
 
-const rng = new RNG();
+let world = new Map();
+let edges = new Set();
+let selectedTile = new Map();
 
-let worldTiles = new Map();
+let stack = generateTiles(5);
 
-/**
- *
- * @param {Map} availableTiles A list of tiles to pick from.
- * @returns {Map} The selected tile.
- */
-function pickRandomTile(availableTiles) {
-    const randomIndex = rng.range(0, availableTiles.size);
-    return availableTiles.get(randomIndex);
-}
+world.set(0, START_TILE);
 
-/**
- *
- * @param {Number} numberToGenerate The number of tiles the function should return.
- * @returns {Map} A map of tiles.
- */
-function generateTiles(numberToGenerate) {
-    let newTiles = new Map();
-    for (let i = 0; i < numberToGenerate; i++) {
-        const newTile = pickRandomTile(TILE_TYPE_MAP);
-        newTiles.set(i, new Map(newTile));
-    }
+const { tile, updatedStack } = removeTileFromStack(stack);
 
-    return newTiles;
-}
+selectedTile = tile;
 
-const stackTiles = generateTiles(10);
-const visualization = visualizeTiles(stackTiles);
-console.log(visualization);
+const stackVisualization = visualizeTiles(stack);
+const worldVisualization = visualizeTiles(world);
+const selectedTileVisualization = visualizeTiles([selectedTile]);
+const updatedStackVisualization = visualizeTiles(updatedStack);
+
+console.log(`SEED:`, rng.seed);
+console.log(`TILES IN STACK (${stack.size}):`, stackVisualization);
+console.log(`TILES IN WORLD (${world.size}):`, worldVisualization);
+console.log(`SELECTED TILE:`, selectedTileVisualization);
+console.log(
+    `TILES IN UPDATED STACK (${updatedStack.size}):`,
+    updatedStackVisualization
+);

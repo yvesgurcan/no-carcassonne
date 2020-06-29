@@ -40,8 +40,8 @@ function generateTileTemplate(tileData) {
 const START_TILE_MAP = [
     ['name', 'Start tile'],
     [1, ROAD],
-    [5, ROAD],
     [6, ROAD],
+    [11, ROAD],
     [7, CITY]
 ];
 
@@ -80,8 +80,7 @@ const MONASTERY_WITHOUT_ROAD = generateTileTemplate(MONASTERY_WITHOUT_ROAD_MAP);
 const MONASTERY_WITH_ROAD = generateTileTemplate(MONASTERY_WITH_ROAD_MAP);
 
 const TILE_TYPES = [
-    EMPTY_TILE,
-    START_TILE,
+    EMPTY_TILE, // For debug purposes
     FOUR_WAY_CROSSROAD,
     THREE_WAY_CROSSROAD,
     MONASTERY_WITHOUT_ROAD,
@@ -91,6 +90,7 @@ const TILE_TYPE_SET = new Set(TILE_TYPES);
 const TILE_TYPE_MAP = new Map(TILE_TYPES.map((tile, index) => [index, tile]));
 
 module.exports = {
+    START_TILE,
     TILE_TYPE_SET,
     TILE_TYPE_MAP
 };
