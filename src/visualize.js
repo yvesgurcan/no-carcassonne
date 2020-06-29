@@ -1,20 +1,15 @@
 /**
  *
- * @param {Object} node
- * @param {String} node.feature See node types.
- * @param {Number} index A number which represents where the node is situated on the tile it belongs to.
+ * @param {Object} nodeData
+ * @param {String} nodeData.feature See node types.
+ * @param {Number} nodeIndex A number which represents where the node is situated on the tile it belongs to.
  * @returns {String} A human-friendly visualization of the node.
  */
-function visualizeNode(node, index) {
-    const feature = node.feature.charAt(0);
-    switch (index) {
+function visualizeNode(nodeData, nodeIndex) {
+    const feature = nodeData.feature.charAt(0);
+    switch (nodeIndex) {
         default: {
-            // only numbered properties are nodes
-            if (String(index).match(/^\d+$/)) {
-                return feature;
-            }
-
-            return '';
+            return feature;
         }
         case 0:
         case 10:
@@ -40,15 +35,18 @@ function visualizeNode(node, index) {
 
 /**
  *
- * @param {Map} tiles
+ * @param {Map} tiles A list of tiles to visualize.
  * @returns {String} A human-friendly representation of the tiles.
  */
 function visualizeTiles(tiles) {
     const tileVisualization = [];
-    tiles.forEach(connections => {
+    tiles.forEach(tile => {
         const nodeVisualization = [];
-        connections.forEach((node, index) => {
-            nodeVisualization.push(visualizeNode(node, index));
+        tile.forEach((value, key) => {
+            // Only numbered properties are nodes
+            if (String(key).match(/^\d+$/)) {
+                nodeVisualization.push(visualizeNode(value, key));
+            }
         });
 
         tileVisualization.push(
