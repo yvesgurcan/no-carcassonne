@@ -1,4 +1,4 @@
-const { EMPTY_NODE, ROAD } = require('./nodeTypes');
+const { EMPTY_NODE, ROAD, MONASTERY } = require('./nodeTypes');
 
 /**
  * @returns {Map} A tile with the default feature.
@@ -29,6 +29,14 @@ function generateTileFromMap(map) {
     return connections;
 }
 
+const THREE_WAY_CROSSROAD_MAP = new Map([
+    ['name', 'Three-way crossroad'],
+    [1, ROAD],
+    [5, ROAD],
+    [6, ROAD],
+    [7, ROAD]
+]);
+
 const FOUR_WAY_CROSSROAD_MAP = new Map([
     ['name', 'Four-way crossroad'],
     [1, ROAD],
@@ -38,19 +46,28 @@ const FOUR_WAY_CROSSROAD_MAP = new Map([
     [11, ROAD]
 ]);
 
-const FOUR_WAY_CROSSROAD = generateTileFromMap(FOUR_WAY_CROSSROAD_MAP);
+const MONASTERY_WITHOUT_ROAD_MAP = new Map([
+    ['name', 'Monsatery'],
+    [6, MONASTERY]
+]);
 
-const THREE_WAY_CROSSROAD_MAP = new Map([
-    ['name', 'Three-way crossroad'],
+const MONASTERY_WITH_ROAD_MAP = new Map([
+    ['name', 'Monsatery'],
     [1, ROAD],
-    [5, ROAD],
-    [6, ROAD],
-    [7, ROAD]
+    [6, MONASTERY]
 ]);
 
 const THREE_WAY_CROSSROAD = generateTileFromMap(THREE_WAY_CROSSROAD_MAP);
+const FOUR_WAY_CROSSROAD = generateTileFromMap(FOUR_WAY_CROSSROAD_MAP);
+const MONASTERY_WITHOUT_ROAD = generateTileFromMap(MONASTERY_WITHOUT_ROAD_MAP);
+const MONASTERY_WITH_ROAD = generateTileFromMap(MONASTERY_WITH_ROAD_MAP);
 
-const TILE_TYPES = [FOUR_WAY_CROSSROAD, THREE_WAY_CROSSROAD];
+const TILE_TYPES = [
+    FOUR_WAY_CROSSROAD,
+    THREE_WAY_CROSSROAD,
+    MONASTERY_WITHOUT_ROAD,
+    MONASTERY_WITH_ROAD
+];
 const TILE_TYPE_SET = new Set(TILE_TYPES);
 const TILE_TYPE_MAP = new Map(TILE_TYPES.map((tile, index) => [index, tile]));
 
