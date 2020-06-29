@@ -1,0 +1,26 @@
+{
+    "name": "not-carcassonne",
+    "version": "0.0.1",
+    "description": "This is not Carcassonne",
+    "author": "Yves Gurcan",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/yvesgurcan/not-carcassonne.git"
+    },
+    "keywords": [
+        "game",
+        "graph"
+    ],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/yvesgurcan/not-carcassonne/issues"
+    },
+    "homepage": "https://github.com/yvesgurcan/not-carcassonne#readme",
+    "dependencies": {
+        "alea": "^1.0.0"
+    }
+}
