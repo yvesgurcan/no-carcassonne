@@ -39,6 +39,10 @@ function visualizeNode(nodeData, nodeIndex) {
  * @returns {String} A human-friendly representation of the tiles.
  */
 function visualizeTiles(tiles) {
+    if (tiles.size === 0) {
+        return 'None';
+    }
+
     const tileVisualization = [];
     tiles.forEach(tile => {
         const nodeVisualization = [];
