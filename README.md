@@ -2,8 +2,8 @@
 
 ## Install
 
-    npm start
+    npm i
 
 ## Develop
 
-    node src/index.js
+    npm start
