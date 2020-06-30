@@ -1,23 +1,31 @@
-const {
-    rng,
+import {
     generateTiles,
     pickStartTile,
     removeTileFromStack,
-    canConnectNodes
-} = require('./gameLogic');
-const { visualizeTiles } = require('./visualize');
+    canConnectNodes,
+    initRNG
+} from './engine/gameLogic';
+import { visualizeTiles } from './engine/visualize';
+import { render } from './renderer';
 
-let world = new Map();
-let edges = new Set();
-let selectedTile = new Map();
-let stack = new Map();
-let nodesA = [];
-let nodesB = [];
-let canConnect = undefined;
+import './index.scss';
+
+let gameState = {
+    extensions: ['Random start tile'],
+    seed: undefined,
+    world: new Map(),
+    edges: new Set(),
+    selectedTile: new Map(),
+    stack: new Map(),
+    nodesA: [],
+    nodesB: [],
+    canConnect: undefined
+};
 
 function initGame() {
-    stack = generateTiles(5);
-    world.set(0, pickStartTile());
+    gameState.seed = initRNG();
+    gameState.stack = generateTiles(5);
+    gameState.world.set(0, pickStartTile(gameState.extensions));
 }
 
 function attemptPlayTurn() {
@@ -28,50 +36,56 @@ function attemptPlayTurn() {
         return;
     }
 
-    selectedTile = tile;
-    stack = updatedStack;
+    gameState.selectedTile = tile;
+    gameState.stack = updatedStack;
 
     const lastCardPlayed = world.size - 1;
-    nodesA = [
+    gameState.nodesA = [
         world.get(lastCardPlayed).get(10),
         world.get(lastCardPlayed).get(11),
         world.get(lastCardPlayed).get(12)
     ];
-    nodesB = [selectedTile.get(0), selectedTile.get(1), selectedTile.get(2)];
+    gameState.nodesB = [
+        selectedTile.get(0),
+        selectedTile.get(1),
+        selectedTile.get(2)
+    ];
 }
 
 function updateGameStateWithValidPlacement() {
-    canConnect = canConnectNodes(nodesA, nodesB);
+    gameState.canConnect = canConnectNodes(nodesA, nodesB);
 
     console.log(
-        `CAN CONNECT NODES ${nodesA
+        `CAN CONNECT NODES ${gameState.nodesA
             .map(node => node.feature)
-            .join(',')} to ${nodesB.map(node => node.feature).join(',')}:`,
-        canConnect
+            .join(',')} to ${gameState.nodesB
+            .map(node => node.feature)
+            .join(',')}:`,
+        gameState.canConnect
     );
 
-    if (canConnect) {
-        world.set(world.size, selectedTile);
+    if (gameState.canConnect) {
+        gameState.world.set(world.size, selectedTile);
 
         const worldVisualization = visualizeTiles(world);
         console.log(`TILES IN WORLD (${world.size}):`, worldVisualization);
     }
 
-    selectedTile = undefined;
-    canConnect = undefined;
-    nodesA = [];
-    nodesB = [];
+    gameState.selectedTile = undefined;
+    gameState.canConnect = undefined;
+    gameState.nodesA = [];
+    gameState.nodesB = [];
 }
 
 async function gameLoop() {
     console.log('===========');
-    console.log(`NUMBER OF TILES IN STACK: ${stack.size}`);
+    console.log(`NUMBER OF TILES IN STACK: ${gameState.stack.size}`);
 
     attemptPlayTurn();
 
-    if (selectedTile) {
+    if (gameState.selectedTile) {
         const selectedTileVisualization = visualizeTiles(
-            new Map([[0, selectedTile]])
+            new Map([[0, gameState.selectedTile]])
         );
         console.log(`SELECTED TILE:`, selectedTileVisualization);
     }
@@ -80,10 +94,13 @@ async function gameLoop() {
 }
 
 initGame();
-console.log(`SEED:`, rng.seed);
-console.log('===========');
+
+/*
 const worldVisualization = visualizeTiles(world);
 console.log(`TILES IN WORLD (${world.size}):`, worldVisualization);
 
 gameLoop();
 setInterval(gameLoop, 10000);
+*/
+
+render(gameState);
