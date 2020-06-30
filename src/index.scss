@@ -1,0 +1,20 @@
+body {
+    margin: 0;
+}
+
+#topbar {
+    position: fixed;
+    width: 100vw;
+    display: flex;
+    justify-content: space-evenly;
+    background: rgb(50, 50, 50);
+    color: white;
+    padding: 10px;
+}
+
+#world {
+    padding-top: 38px;
+    min-width: 100vw;
+    min-height: 100vh;
+    background: grey;
+}
