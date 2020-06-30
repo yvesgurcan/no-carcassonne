@@ -1,11 +1,11 @@
-const Alea = require('alea');
+import Alea from 'alea';
 
 let instance = null;
 
 /**
  * @property {*} [seed] A primitive used as a base to generate random numbers.
  */
-class RNG {
+export default class RNG {
     /**
      *
      * @param {*} [seed] A primitive used as a base to generate random numbers.
@@ -53,7 +53,7 @@ class RNG {
      * @returns {Number} A randomly generated seed.
      */
     get newSeed() {
-        return Math.random();
+        return Number(String(Math.random()).replace('.', ''));
     }
 
     /**
@@ -77,5 +77,3 @@ class RNG {
         return Math.floor(this.rng() * (max - min)) + min;
     }
 }
-
-module.exports = RNG;

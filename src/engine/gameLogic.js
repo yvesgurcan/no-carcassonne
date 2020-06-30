@@ -1,14 +1,23 @@
-const { TILE_TYPE_MAP, START_TILE } = require('./tileTypes');
-const RNG = require('./RNG');
+import {
+    TILE_TYPE_NAMED_MAP,
+    TILE_TYPE_NUMBERED_MAP,
+    START_TILE
+} from './tileTypes';
+import RNG from './RNG';
 
-const rng = new RNG();
+let rng = undefined;
+
+export function initRNG(seed) {
+    rng = new RNG(seed);
+    return rng.seed;
+}
 
 /**
  *
  * @param {Map} stack A list of tiles to pick from.
  * @returns {Object} The selected tile and the index of that tile in the stack.
  */
-function pickRandomTile(stack) {
+export function pickRandomTile(stack = TILE_TYPE_NUMBERED_MAP) {
     const index = rng.range(0, stack.size);
     return { tile: stack.get(index), index };
 }
@@ -18,10 +27,10 @@ function pickRandomTile(stack) {
  * @param {Number} numberToGenerate The number of tiles the function should return.
  * @returns {Map} A map of tiles.
  */
-function generateTiles(numberToGenerate) {
+export function generateTiles(numberToGenerate) {
     let newTiles = new Map();
     for (let i = 0; i < numberToGenerate; i++) {
-        const { tile } = pickRandomTile(TILE_TYPE_MAP);
+        const { tile } = pickRandomTile();
         newTiles.set(i, new Map(tile));
     }
 
@@ -32,7 +41,15 @@ function generateTiles(numberToGenerate) {
  * @returns {Map} First tile
  */
 
-function pickStartTile() {
+export function pickStartTile(extensions = []) {
+    if (extensions.includes('Random start tile')) {
+        return pickRandomTile().tile;
+    }
+
+    if (extensions.includes('River')) {
+        return TILE_TYPE_NAMED_MAP.get('Spring');
+    }
+
     return START_TILE;
 }
 
@@ -41,7 +58,7 @@ function pickStartTile() {
  * @param {Map} stack A list of tiles to remove the tile from.
  * @returns {Object} The removed tile and the updated list of tiles.
  */
-function removeTileFromStack(stack) {
+export function removeTileFromStack(stack) {
     if (stack.size === 0) {
         return { tile: undefined, updatedStack: stack };
     }
@@ -60,7 +77,7 @@ function removeTileFromStack(stack) {
  * @param {Array} nodesB A list of nodes.
  * @returns {Boolean}
  */
-function canConnectNodes(nodesA, nodesB) {
+export function canConnectNodes(nodesA, nodesB) {
     if (nodesA.length !== 3 || nodesB.length !== 3) {
         return false;
     }
@@ -77,14 +94,6 @@ function canConnectNodes(nodesA, nodesB) {
     return true;
 }
 
-function createEdges(edges, nodesA, nodesB) {
+export function createEdges(edges, nodesA, nodesB) {
     return;
 }
-
-module.exports = {
-    rng,
-    generateTiles,
-    pickStartTile,
-    removeTileFromStack,
-    canConnectNodes
-};
