@@ -1,8 +1,15 @@
 import { CITY, ROAD, MONASTERY, RIVER } from '../engine/nodeTypes';
-import { removeTileFromStack, rotateTile } from '../engine/gameLogic';
-import { isNumber } from '../util';
+import {
+    removeTileFromStack,
+    rotateTile,
+    canConnectNodes
+} from '../engine/gameLogic';
+import { isNumber, isCoordinates } from '../util';
 
 const TILE_SIZE = 60;
+
+const LEFT_PADDING_OFFSET = 240;
+const TOP_PADDING_OFFSET = 240;
 
 function getElement(id) {
     const element = document.getElementById(id);
@@ -185,11 +192,13 @@ function drawTile(tile, id) {
 
 function drawWorldTiles(worldState, container) {
     worldState.forEach((value, key) => {
-        if (isNumber(key)) {
-            const offset = key * 20;
+        if (isCoordinates(key)) {
+            const [x, y] = key.split('/').map(fragment => Number(fragment));
+            const offsetX = x * TILE_SIZE;
+            const offsetY = y * TILE_SIZE;
             const tile = drawTile(value, `world${key}`);
-            tile.style.marginLeft = offset;
-            tile.style.marginTop = offset;
+            tile.style.marginLeft = `${offsetX}px`;
+            tile.style.marginTop = `${offsetY}px`;
             container.append(tile);
         }
     });
@@ -222,11 +231,103 @@ export function initRender(gameState) {
     };
 
     const world = getElement('world');
-    world.onclick = () => {
-        if (gameState.tileToPlace) {
+    world.onclick = ({ pageX, pageY }) => {
+        if (gameState.tileToPlace.size !== 0) {
+            const x =
+                snapTileToPlaceToGrid(pageX - LEFT_PADDING_OFFSET) / TILE_SIZE;
+            const y =
+                snapTileToPlaceToGrid(pageY - TOP_PADDING_OFFSET) / TILE_SIZE;
+
+            const westCoordinates = `${x - 1}/${y}`;
+            const westTile = gameState.world.get(westCoordinates);
+            const eastCoordinates = `${x + 1}/${y}`;
+            const eastTile = gameState.world.get(eastCoordinates);
+            const northCoordinates = `${x}/${y + 1}`;
+            const northTile = gameState.world.get(northCoordinates);
+            const southCoordinates = `${x}/${y - 1}`;
+            const southTile = gameState.world.get(southCoordinates);
+
+            const adjacentTiles = new Map();
+
+            if (westTile) {
+                adjacentTiles.set(`W`, westTile);
+            }
+
+            if (eastTile) {
+                adjacentTiles.set(`E`, eastTile);
+            }
+
+            if (northTile) {
+                adjacentTiles.set(`N`, northTile);
+            }
+
+            if (southTile) {
+                adjacentTiles.set(`S`, southTile);
+            }
+
+            if (adjacentTiles.size === 0) {
+                return;
+            }
+
+            for (let [direction, tile] of adjacentTiles) {
+                let nodesA = [];
+                let nodesB = [];
+                switch (direction) {
+                    case 'W': {
+                        nodesA = [
+                            gameState.tileToPlace.get(3),
+                            gameState.tileToPlace.get(5),
+                            gameState.tileToPlace.get(8)
+                        ];
+                        nodesB = [tile.get(4), tile.get(7), tile.get(9)];
+
+                        break;
+                    }
+                    case 'E': {
+                        nodesA = [
+                            gameState.tileToPlace.get(4),
+                            gameState.tileToPlace.get(7),
+                            gameState.tileToPlace.get(9)
+                        ];
+                        nodesB = [tile.get(3), tile.get(5), tile.get(8)];
+
+                        break;
+                    }
+                    case 'N': {
+                        nodesA = [
+                            gameState.tileToPlace.get(10),
+                            gameState.tileToPlace.get(11),
+                            gameState.tileToPlace.get(12)
+                        ];
+                        nodesB = [tile.get(0), tile.get(1), tile.get(2)];
+
+                        break;
+                    }
+                    case 'S': {
+                        nodesA = [
+                            gameState.tileToPlace.get(0),
+                            gameState.tileToPlace.get(1),
+                            gameState.tileToPlace.get(2)
+                        ];
+                        nodesB = [tile.get(10), tile.get(11), tile.get(12)];
+
+                        break;
+                    }
+                }
+
+                const canConnect = canConnectNodes(nodesA, nodesB);
+                if (!canConnect) {
+                    return;
+                }
+            }
+
             const tileToPlace = getElement('tile-to-place');
             tileToPlace.innerHTML = null;
             stack.style.pointerEvents = null;
+            gameState.world.set(`${x}/${y}`, gameState.tileToPlace);
+            gameState.tileToPlace = new Map();
+            console.log(gameState.world);
+            render(gameState);
         }
     };
 }

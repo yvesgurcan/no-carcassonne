@@ -111,7 +111,3 @@ export function canConnectNodes(nodesA, nodesB) {
 
     return true;
 }
-
-export function createEdges(edges, nodesA, nodesB) {
-    return;
-}

@@ -39,6 +39,7 @@ function generateTileTemplate(tileData) {
 }
 
 const TILE_TYPE_MODIFIER_MAPS = {
+    /*
     Spring: [
         ['name', 'Spring'],
         [1, RIVER],
@@ -69,6 +70,7 @@ const TILE_TYPE_MODIFIER_MAPS = {
         [6, ROAD],
         [7, ROAD]
     ],
+    */
     'Road turn': [
         ['name', 'Road turn'],
         [1, ROAD],

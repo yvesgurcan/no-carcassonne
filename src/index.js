@@ -11,7 +11,7 @@ import { initRender, render } from './renderer';
 import './index.scss';
 
 let gameState = {
-    extensions: ['Random start tile'],
+    extensions: [],
     seed: undefined,
     world: new Map(),
     edges: new Set(),
@@ -25,7 +25,7 @@ let gameState = {
 function initGame() {
     gameState.seed = initRNG();
     gameState.stack = generateTiles(82);
-    gameState.world.set(0, pickStartTile(gameState.extensions));
+    gameState.world.set('0/0', pickStartTile(gameState.extensions));
     initRender(gameState);
 }
 
@@ -78,30 +78,6 @@ function updateGameStateWithValidPlacement() {
     gameState.nodesB = [];
 }
 
-async function gameLoop() {
-    console.log('===========');
-    console.log(`NUMBER OF TILES IN STACK: ${gameState.stack.size}`);
-
-    attemptPlayTurn();
-
-    if (gameState.tileToPlace) {
-        const selectedTileVisualization = visualizeTiles(
-            new Map([[0, gameState.tileToPlace]])
-        );
-        console.log(`SELECTED TILE:`, selectedTileVisualization);
-    }
-
-    updateGameStateWithValidPlacement();
-}
-
 initGame();
-
-/*
-const worldVisualization = visualizeTiles(world);
-console.log(`TILES IN WORLD (${world.size}):`, worldVisualization);
-
-gameLoop();
-setInterval(gameLoop, 10000);
-*/
 
 render(gameState);
