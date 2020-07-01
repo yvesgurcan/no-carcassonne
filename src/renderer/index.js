@@ -197,6 +197,7 @@ function drawWorldTiles(worldState, container) {
             const offsetX = x * TILE_SIZE;
             const offsetY = y * TILE_SIZE;
             const tile = drawTile(value, `world${key}`);
+            tile.style.position = 'absolute';
             tile.style.marginLeft = `${offsetX}px`;
             tile.style.marginTop = `${offsetY}px`;
             container.append(tile);
@@ -216,6 +217,9 @@ function snapTileToPlaceToGrid(coordinate) {
 export function initRender(gameState) {
     const seed = getElement('seed');
     seed.innerHTML = gameState.seed;
+
+    const rotate = getElement('rotate');
+    rotate.style.display = 'none';
 
     const stack = getElement('stack');
     stack.onclick = () => {
@@ -324,9 +328,13 @@ export function initRender(gameState) {
             const tileToPlace = getElement('tile-to-place');
             tileToPlace.innerHTML = null;
             stack.style.pointerEvents = null;
+
+            const rotate = getElement('rotate');
+            rotate.style.display = 'none';
+
             gameState.world.set(`${x}/${y}`, gameState.tileToPlace);
             gameState.tileToPlace = new Map();
-            console.log(gameState.world);
+
             render(gameState);
         }
     };
@@ -370,6 +378,18 @@ export function render(gameState) {
                         drawTileToPlace(updatedTileToPlace, tileToPlace);
                     }
                 }
+            }
+        };
+
+        const rotate = getElement('rotate');
+        rotate.style.display = null;
+        rotate.onclick = () => {
+            if (gameState.tileToPlace) {
+                const updatedTileToPlace = rotateTile(gameState.tileToPlace);
+                gameState.tileToPlace = updatedTileToPlace;
+                const tileToPlace = getElement('tile-to-place');
+                tileToPlace.innerHTML = null;
+                drawTileToPlace(updatedTileToPlace, tileToPlace);
             }
         };
     }

@@ -14,6 +14,7 @@ body {
     border-bottom: 1px rgb(0, 0, 0, 0.7) solid;
     color: white;
     padding: 10px;
+    z-index: 1;
 }
 
 #world {
@@ -46,4 +47,19 @@ body {
     div {
         text-align: center;
     }
+}
+
+#rotate {
+    position: fixed;
+    top: calc(60px + 20px + 75px + 20px);
+    right: 20px;
+    background: rgb(30, 30, 30, 0.7);
+    border: 1px rgb(0, 0, 0, 0.7) solid;
+    width: 75px;
+    height: 75px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
 }

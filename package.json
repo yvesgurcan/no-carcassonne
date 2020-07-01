@@ -1,6 +1,6 @@
 {
     "name": "not-carcassonne",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "This is not Carcassonne",
     "author": "Yves Gurcan",
     "main": "index.js",
