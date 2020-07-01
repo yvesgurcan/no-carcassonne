@@ -54,6 +54,7 @@ module.exports = {
         overlay: true,
         stats: 'minimal',
         host: '0.0.0.0',
-        disableHostCheck: true
+        disableHostCheck: true,
+        writeToDisk: true
     }
 };
