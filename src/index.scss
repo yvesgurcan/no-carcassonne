@@ -5,6 +5,8 @@ body {
 #topbar {
     position: fixed;
     width: 100vw;
+    height: 60px;
+    box-sizing: border-box;
     display: flex;
     justify-content: space-evenly;
     background: rgb(60, 60, 60, 0.7);
@@ -14,7 +16,7 @@ body {
 }
 
 #world {
-    padding-top: 39px;
+    padding-top: 60px;
     min-width: 100vw;
     min-height: 100vh;
     background: grey;
@@ -27,7 +29,7 @@ body {
 
 #stack {
     position: fixed;
-    top: calc(39px + 20px);
+    top: calc(60px + 20px);
     right: 20px;
     background: rgb(30, 30, 30, 0.7);
     border: 1px rgb(0, 0, 0, 0.7) solid;

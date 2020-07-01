@@ -71,6 +71,24 @@ export function removeTileFromStack(stack) {
     return { tile, updatedStack };
 }
 
+export function rotateTile(tile) {
+    const rotatedTile = new Map(tile);
+    rotatedTile.set(0, tile.get(8));
+    rotatedTile.set(1, tile.get(5));
+    rotatedTile.set(2, tile.get(3));
+    rotatedTile.set(3, tile.get(10));
+    rotatedTile.set(4, tile.get(4));
+    rotatedTile.set(5, tile.get(11));
+    rotatedTile.set(7, tile.get(1));
+    rotatedTile.set(8, tile.get(12));
+    rotatedTile.set(9, tile.get(2));
+    rotatedTile.set(10, tile.get(9));
+    rotatedTile.set(11, tile.get(7));
+    rotatedTile.set(12, tile.get(4));
+
+    return rotatedTile;
+}
+
 /**
  *
  * @param {Array} nodesA A list of nodes.

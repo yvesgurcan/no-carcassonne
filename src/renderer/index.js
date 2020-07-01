@@ -1,5 +1,5 @@
 import { CITY, ROAD, MONASTERY, RIVER } from '../engine/nodeTypes';
-import { removeTileFromStack } from '../engine/gameLogic';
+import { removeTileFromStack, rotateTile } from '../engine/gameLogic';
 import { isNumber } from '../util';
 
 const TILE_SIZE = 60;
@@ -25,6 +25,7 @@ function getOffset(offsetMultiplier) {
     const offsetBase = TILE_SIZE / 3;
     return offsetBase * offsetMultiplier;
 }
+
 function drawNode(index, node, canvas) {
     switch (node.feature) {
         default: {
@@ -195,9 +196,12 @@ function drawWorldTiles(worldState, container) {
 }
 
 function drawTileToPlace(tileToPlace, container) {
-    console.log(tileToPlace);
     const tile = drawTile(tileToPlace, `tile-to-place0`);
     container.append(tile);
+}
+
+function snapTileToPlaceToGrid(coordinate) {
+    return Math.floor(coordinate / TILE_SIZE) * TILE_SIZE;
 }
 
 export function initRender(gameState) {
@@ -237,8 +241,35 @@ export function render(gameState) {
         const world = getElement('world');
         world.onmousemove = ({ pageX, pageY }) => {
             const tileToPlace = getElement('tile-to-place');
-            tileToPlace.style.top = `${pageY - TILE_SIZE / 2}px`;
-            tileToPlace.style.left = `${pageX - TILE_SIZE / 2}px`;
+            const left = snapTileToPlaceToGrid(pageX);
+            const top = snapTileToPlaceToGrid(pageY);
+
+            if (left / TILE_SIZE < 0) {
+                return;
+            }
+
+            if (top / TILE_SIZE <= 0) {
+                return;
+            }
+
+            tileToPlace.style.left = `${left}px`;
+            tileToPlace.style.top = `${top}px`;
+        };
+
+        document.onkeypress = ({ code }) => {
+            switch (code) {
+                case 'KeyR': {
+                    if (gameState.tileToPlace) {
+                        const updatedTileToPlace = rotateTile(
+                            gameState.tileToPlace
+                        );
+                        gameState.tileToPlace = updatedTileToPlace;
+                        const tileToPlace = getElement('tile-to-place');
+                        tileToPlace.innerHTML = null;
+                        drawTileToPlace(updatedTileToPlace, tileToPlace);
+                    }
+                }
+            }
         };
     }
 
