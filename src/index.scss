@@ -7,14 +7,39 @@ body {
     width: 100vw;
     display: flex;
     justify-content: space-evenly;
-    background: rgb(50, 50, 50);
+    background: rgb(60, 60, 60, 0.7);
+    border-bottom: 1px rgb(0, 0, 0, 0.7) solid;
     color: white;
     padding: 10px;
 }
 
 #world {
-    padding-top: 38px;
+    padding-top: 39px;
     min-width: 100vw;
     min-height: 100vh;
     background: grey;
+}
+
+#tile-to-place {
+    position: absolute;
+    pointer-events: none;
+}
+
+#stack {
+    position: fixed;
+    top: calc(39px + 20px);
+    right: 20px;
+    background: rgb(30, 30, 30, 0.7);
+    border: 1px rgb(0, 0, 0, 0.7) solid;
+    width: 75px;
+    height: 75px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    div {
+        text-align: center;
+    }
 }

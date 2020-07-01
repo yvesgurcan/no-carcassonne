@@ -1,4 +1,5 @@
 import { CITY, ROAD, MONASTERY, RIVER } from '../engine/nodeTypes';
+import { removeTileFromStack } from '../engine/gameLogic';
 import { isNumber } from '../util';
 
 const TILE_SIZE = 60;
@@ -193,13 +194,58 @@ function drawWorldTiles(worldState, container) {
     });
 }
 
-export function render(gameState) {
-    const tilesInStack = getElement('tiles-in-stack');
-    tilesInStack.innerHTML = gameState.stack.size;
+function drawTileToPlace(tileToPlace, container) {
+    console.log(tileToPlace);
+    const tile = drawTile(tileToPlace, `tile-to-place0`);
+    container.append(tile);
+}
 
+export function initRender(gameState) {
     const seed = getElement('seed');
     seed.innerHTML = gameState.seed;
 
+    const stack = getElement('stack');
+    stack.onclick = () => {
+        const { tile, updatedStack } = removeTileFromStack(gameState.stack);
+        gameState.stack = updatedStack;
+        gameState.tileToPlace = tile;
+
+        stack.style.pointerEvents = 'none';
+
+        const tileToPlace = getElement('tile-to-place');
+        drawTileToPlace(gameState.tileToPlace, tileToPlace);
+        render(gameState);
+    };
+
     const world = getElement('world');
+    world.onclick = () => {
+        if (gameState.tileToPlace) {
+            const tileToPlace = getElement('tile-to-place');
+            tileToPlace.innerHTML = null;
+            stack.style.pointerEvents = null;
+        }
+    };
+}
+
+export function render(gameState) {
+    if (gameState.stack.size === 0) {
+        const stack = getElement('stack');
+        stack.style.display = 'none';
+    }
+
+    if (gameState.tileToPlace.size !== 0) {
+        const world = getElement('world');
+        world.onmousemove = ({ pageX, pageY }) => {
+            const tileToPlace = getElement('tile-to-place');
+            tileToPlace.style.top = `${pageY - TILE_SIZE / 2}px`;
+            tileToPlace.style.left = `${pageX - TILE_SIZE / 2}px`;
+        };
+    }
+
+    const tilesInStack = getElement('tiles-in-stack');
+    tilesInStack.innerHTML = gameState.stack.size;
+
+    const world = getElement('world');
+    world.innerHTML = null;
     drawWorldTiles(gameState.world, world);
 }

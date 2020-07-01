@@ -6,7 +6,7 @@ import {
     initRNG
 } from './engine/gameLogic';
 import { visualizeTiles } from './engine/visualize';
-import { render } from './renderer';
+import { initRender, render } from './renderer';
 
 import './index.scss';
 
@@ -15,7 +15,7 @@ let gameState = {
     seed: undefined,
     world: new Map(),
     edges: new Set(),
-    selectedTile: new Map(),
+    tileToPlace: new Map(),
     stack: new Map(),
     nodesA: [],
     nodesB: [],
@@ -24,8 +24,9 @@ let gameState = {
 
 function initGame() {
     gameState.seed = initRNG();
-    gameState.stack = generateTiles(5);
+    gameState.stack = generateTiles(82);
     gameState.world.set(0, pickStartTile(gameState.extensions));
+    initRender(gameState);
 }
 
 function attemptPlayTurn() {
@@ -36,7 +37,7 @@ function attemptPlayTurn() {
         return;
     }
 
-    gameState.selectedTile = tile;
+    gameState.tileToPlace = tile;
     gameState.stack = updatedStack;
 
     const lastCardPlayed = world.size - 1;
@@ -46,9 +47,9 @@ function attemptPlayTurn() {
         world.get(lastCardPlayed).get(12)
     ];
     gameState.nodesB = [
-        selectedTile.get(0),
-        selectedTile.get(1),
-        selectedTile.get(2)
+        tileToPlace.get(0),
+        tileToPlace.get(1),
+        tileToPlace.get(2)
     ];
 }
 
@@ -65,7 +66,7 @@ function updateGameStateWithValidPlacement() {
     );
 
     if (gameState.canConnect) {
-        gameState.world.set(world.size, selectedTile);
+        gameState.world.set(world.size, tileToPlace);
 
         const worldVisualization = visualizeTiles(world);
         console.log(`TILES IN WORLD (${world.size}):`, worldVisualization);
@@ -83,9 +84,9 @@ async function gameLoop() {
 
     attemptPlayTurn();
 
-    if (gameState.selectedTile) {
+    if (gameState.tileToPlace) {
         const selectedTileVisualization = visualizeTiles(
-            new Map([[0, gameState.selectedTile]])
+            new Map([[0, gameState.tileToPlace]])
         );
         console.log(`SELECTED TILE:`, selectedTileVisualization);
     }
