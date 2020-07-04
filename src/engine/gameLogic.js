@@ -77,7 +77,7 @@ export function rotateTile(tile) {
     rotatedTile.set(1, tile.get(5));
     rotatedTile.set(2, tile.get(3));
     rotatedTile.set(3, tile.get(10));
-    rotatedTile.set(4, tile.get(4));
+    rotatedTile.set(4, tile.get(0));
     rotatedTile.set(5, tile.get(11));
     rotatedTile.set(7, tile.get(1));
     rotatedTile.set(8, tile.get(12));
