@@ -39,65 +39,154 @@ function generateTileTemplate(tileData) {
 }
 
 const TILE_TYPE_MODIFIER_MAPS = {
-    /*
     Spring: [
-        ['name', 'Spring'],
         [1, RIVER],
         [6, RIVER]
     ],
     Lake: [
-        ['name', 'Lake'],
         [1, RIVER],
         [6, RIVER]
     ],
     'Straight river': [
-        ['name', 'Straight river'],
         [1, RIVER],
         [6, RIVER],
         [11, RIVER]
     ],
     'River turn': [
-        ['name', 'River turn'],
         [1, RIVER],
         [6, RIVER],
         [7, RIVER]
     ],
     'River with bridge': [
-        ['name', 'River with bridge'],
         [1, RIVER],
         [11, RIVER],
         [5, ROAD],
         [6, ROAD],
         [7, ROAD]
     ],
-    */
+    'River with city': [
+        [1, RIVER],
+        [6, RIVER],
+        [11, RIVER],
+        [4, CITY],
+        [7, CITY],
+        [9, CITY]
+    ],
+    'River with bridge and city': [
+        [1, RIVER],
+        [11, RIVER],
+        [5, ROAD],
+        [6, ROAD],
+        [4, CITY],
+        [7, CITY],
+        [9, CITY]
+    ],
+    'Straight road': [
+        [1, ROAD],
+        [6, ROAD],
+        [11, ROAD]
+    ],
     'Road turn': [
-        ['name', 'Road turn'],
         [1, ROAD],
         [6, ROAD],
         [7, ROAD]
     ],
     'Three-way crossroad': [
-        ['name', 'Three-way crossroad'],
         [1, ROAD],
         [5, ROAD],
         [6, ROAD],
         [7, ROAD]
     ],
     'Four-way crossroad': [
-        ['name', 'Four-way crossroad'],
         [1, ROAD],
         [5, ROAD],
         [6, ROAD],
         [7, ROAD],
         [11, ROAD]
     ],
-    Monastery: [
-        ['name', 'Monastery'],
-        [6, MONASTERY]
+    'Side city': [
+        [0, CITY],
+        [1, CITY],
+        [2, CITY]
     ],
+    'Twin side city': [
+        [0, CITY],
+        [1, CITY],
+        [2, CITY],
+        [10, CITY],
+        [11, CITY],
+        [12, CITY]
+    ],
+    'City corner': [
+        [0, CITY],
+        [1, CITY],
+        [2, CITY],
+        [3, CITY],
+        [5, CITY],
+        [8, CITY]
+    ],
+    'City corner with road': [
+        [0, CITY],
+        [1, CITY],
+        [2, CITY],
+        [3, CITY],
+        [5, CITY],
+        [8, CITY],
+        [11, ROAD],
+        [6, ROAD],
+        [7, ROAD]
+    ],
+    'City entryway': [
+        [1, ROAD],
+        [3, CITY],
+        [4, CITY],
+        [5, CITY],
+        [6, CITY],
+        [7, CITY],
+        [8, CITY],
+        [9, CITY],
+        [10, CITY],
+        [11, CITY],
+        [12, CITY]
+    ],
+    'City fortification': [
+        [3, CITY],
+        [4, CITY],
+        [5, CITY],
+        [6, CITY],
+        [7, CITY],
+        [8, CITY],
+        [9, CITY],
+        [10, CITY],
+        [11, CITY],
+        [12, CITY]
+    ],
+    'Accordion city': [
+        [3, CITY],
+        [4, CITY],
+        [5, CITY],
+        [6, CITY],
+        [7, CITY],
+        [8, CITY],
+        [9, CITY]
+    ],
+    'Inner city': [
+        [0, CITY],
+        [1, CITY],
+        [2, CITY],
+        [3, CITY],
+        [4, CITY],
+        [5, CITY],
+        [6, CITY],
+        [7, CITY],
+        [8, CITY],
+        [9, CITY],
+        [10, CITY],
+        [11, CITY],
+        [12, CITY]
+    ],
+    Monastery: [[6, MONASTERY]],
     'Monastery with road': [
-        ['name', 'Monastery with road'],
         [1, ROAD],
         [6, MONASTERY]
     ]
@@ -107,6 +196,7 @@ function generateTileTemplatesFromModifierMaps() {
     let tiles = [];
     for (const modifierMap in TILE_TYPE_MODIFIER_MAPS) {
         const tile = generateTileTemplate(TILE_TYPE_MODIFIER_MAPS[modifierMap]);
+        tile.set('name', modifierMap);
         tiles.push(tile);
     }
 
@@ -123,10 +213,7 @@ export const START_TILE = generateTileTemplate([
     [9, CITY]
 ]);
 
-const TILE_TYPES = [
-    EMPTY_TILE, // For debug purposes
-    ...generateTileTemplatesFromModifierMaps()
-];
+const TILE_TYPES = [...generateTileTemplatesFromModifierMaps()];
 
 export const TILE_TYPE_NAMED_MAP = new Map(
     TILE_TYPES.map(tile => [tile.get('name'), tile])
