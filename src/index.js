@@ -12,7 +12,31 @@ let gameState = {
     stack: new Map(),
     nodesA: [],
     nodesB: [],
-    canConnect: undefined
+    canConnect: undefined,
+    turn: 0,
+    phase: 'pick-tile',
+    players: [
+        {
+            name: 'Bob',
+            color: 'red',
+            meeples: 7
+        },
+        {
+            name: 'John',
+            color: 'blue',
+            meeples: 7
+        },
+        {
+            name: 'Jane',
+            color: 'purple',
+            meeples: 7
+        },
+        {
+            name: 'Alberta',
+            color: 'yellow',
+            meeples: 7
+        }
+    ]
 };
 
 function initGame() {
