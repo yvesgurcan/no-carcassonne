@@ -214,29 +214,148 @@ function snapTileToPlaceToGrid(coordinate) {
     return Math.floor(coordinate / TILE_SIZE) * TILE_SIZE;
 }
 
+// TODO
+function canPlaceTileInWorld(tile) {
+    return true;
+}
+
 export function initRender(gameState) {
     const seed = getElement('seed');
     seed.innerHTML = gameState.seed;
 
-    const rotate = getElement('rotate');
-    rotate.style.display = 'none';
-
     const stack = getElement('stack');
     stack.onclick = () => {
-        const { tile, updatedStack } = removeTileFromStack(gameState.stack);
-        gameState.stack = updatedStack;
-        gameState.tileToPlace = tile;
+        let canPlaceTile = false;
+        let tile = undefined;
+        let updatedStack = undefined;
+        while (!canPlaceTile) {
+            ({ tile, updatedStack } = removeTileFromStack(gameState.stack));
+            canPlaceTile = canPlaceTileInWorld(tile);
 
-        stack.style.pointerEvents = 'none';
+            gameState.stack = updatedStack;
+
+            if (updatedStack.size === 0) {
+                break;
+            }
+        }
+
+        if (!canPlaceTile) {
+            gameState.phase = 'endgame';
+            render(gameState);
+            return;
+        }
+
+        console.log(canPlaceTile);
+        gameState.tileToPlace = tile;
+        gameState.phase = 'place-tile';
 
         const tileToPlace = getElement('tile-to-place');
         drawTileToPlace(gameState.tileToPlace, tileToPlace);
         render(gameState);
     };
 
+    const rotate = getElement('rotate');
+    rotate.style.display = 'none';
+    rotate.onclick = () => {
+        const updatedTileToPlace = rotateTile(gameState.tileToPlace);
+        gameState.tileToPlace = updatedTileToPlace;
+
+        const tileToPlace = getElement('tile-to-place');
+        tileToPlace.innerHTML = null;
+        drawTileToPlace(updatedTileToPlace, tileToPlace);
+    };
+
+    const endTurn = getElement('end-turn');
+    endTurn.onclick = () => {
+        gameState.phase = 'pick-tile';
+        gameState.turn++;
+        render(gameState);
+    };
+
+    document.onkeypress = ({ code }) => {
+        switch (code) {
+            case 'Enter': {
+                switch (gameState.phase) {
+                    case 'pick-tile': {
+                        let canPlaceTile = false;
+                        let tile = undefined;
+                        let updatedStack = undefined;
+                        while (!canPlaceTile) {
+                            ({ tile, updatedStack } = removeTileFromStack(
+                                gameState.stack
+                            ));
+                            canPlaceTile = canPlaceTileInWorld(tile);
+
+                            gameState.stack = updatedStack;
+
+                            if (updatedStack.size === 0) {
+                                break;
+                            }
+                        }
+
+                        if (!canPlaceTile) {
+                            gameState.phase = 'endgame';
+                            render(gameState);
+                            return;
+                        }
+
+                        console.log(canPlaceTile);
+                        gameState.tileToPlace = tile;
+                        gameState.phase = 'place-tile';
+
+                        const tileToPlace = getElement('tile-to-place');
+                        drawTileToPlace(gameState.tileToPlace, tileToPlace);
+                        render(gameState);
+
+                        break;
+                    }
+
+                    case 'place-meeple': {
+                        gameState.phase = 'pick-tile';
+                        gameState.turn++;
+                        render(gameState);
+                    }
+                }
+
+                break;
+            }
+            case 'KeyR': {
+                if (gameState.phase === 'place-tile') {
+                    const updatedTileToPlace = rotateTile(
+                        gameState.tileToPlace
+                    );
+                    gameState.tileToPlace = updatedTileToPlace;
+
+                    const tileToPlace = getElement('tile-to-place');
+                    tileToPlace.innerHTML = null;
+                    drawTileToPlace(updatedTileToPlace, tileToPlace);
+                }
+            }
+        }
+    };
+
     const world = getElement('world');
+    world.onmousemove = ({ pageX, pageY }) => {
+        if (gameState.phase === 'place-tile') {
+            const tileToPlace = getElement('tile-to-place');
+            const left = snapTileToPlaceToGrid(pageX);
+            const top = snapTileToPlaceToGrid(pageY);
+
+            if (left / TILE_SIZE < 0) {
+                return;
+            }
+
+            if (top / TILE_SIZE <= 0) {
+                return;
+            }
+
+            tileToPlace.style.left = `${left}px`;
+            tileToPlace.style.top = `${top}px`;
+        }
+    };
+
     world.onclick = ({ pageX, pageY }) => {
-        if (gameState.tileToPlace.size !== 0) {
+        if (gameState.phase === 'place-tile') {
             const x =
                 snapTileToPlaceToGrid(pageX - LEFT_PADDING_OFFSET) / TILE_SIZE;
             const y =
@@ -334,6 +453,7 @@ export function initRender(gameState) {
 
             gameState.world.set(`${x}/${y}`, gameState.tileToPlace);
             gameState.tileToPlace = new Map();
+            gameState.phase = 'place-meeple';
 
             render(gameState);
         }
@@ -341,61 +461,66 @@ export function initRender(gameState) {
 }
 
 export function render(gameState) {
-    if (gameState.stack.size === 0) {
-        const stack = getElement('stack');
-        stack.style.display = 'none';
+    const turnCount = getElement('turn-count');
+    turnCount.innerHTML = gameState.turn;
+
+    const currentPlayer =
+        gameState.players[gameState.turn % gameState.players.length];
+
+    const turnPlayer = getElement('turn-player');
+    turnPlayer.innerHTML = currentPlayer.name;
+    turnPlayer.style.color = currentPlayer.color;
+
+    const phase = getElement('phase');
+    phase.innerHTML = gameState.phase;
+
+    switch (gameState.phase) {
+        case 'pick-tile': {
+            const stack = getElement('stack');
+            stack.style.display = null;
+
+            const placeMeeples = getElement('place-meeple');
+            placeMeeples.style.display = 'none';
+
+            const endTurn = getElement('end-turn');
+            endTurn.style.display = 'none';
+
+            const tilesInStack = getElement('tiles-in-stack');
+            tilesInStack.innerHTML = gameState.stack.size;
+
+            break;
+        }
+
+        case 'place-tile': {
+            const stack = getElement('stack');
+            stack.style.display = 'none';
+
+            const rotate = getElement('rotate');
+            rotate.style.display = null;
+
+            break;
+        }
+
+        case 'place-meeple': {
+            const placeMeeples = getElement('place-meeple');
+            placeMeeples.style.display = null;
+
+            const endTurn = getElement('end-turn');
+            endTurn.style.display = null;
+
+            const meeplesLeft = getElement('meeples-left');
+            meeplesLeft.innerHTML = currentPlayer.meeples;
+
+            break;
+        }
+
+        case 'endgame': {
+            const stack = getElement('stack');
+            stack.style.display = 'none';
+
+            break;
+        }
     }
-
-    if (gameState.tileToPlace.size !== 0) {
-        const world = getElement('world');
-        world.onmousemove = ({ pageX, pageY }) => {
-            const tileToPlace = getElement('tile-to-place');
-            const left = snapTileToPlaceToGrid(pageX);
-            const top = snapTileToPlaceToGrid(pageY);
-
-            if (left / TILE_SIZE < 0) {
-                return;
-            }
-
-            if (top / TILE_SIZE <= 0) {
-                return;
-            }
-
-            tileToPlace.style.left = `${left}px`;
-            tileToPlace.style.top = `${top}px`;
-        };
-
-        document.onkeypress = ({ code }) => {
-            switch (code) {
-                case 'KeyR': {
-                    if (gameState.tileToPlace) {
-                        const updatedTileToPlace = rotateTile(
-                            gameState.tileToPlace
-                        );
-                        gameState.tileToPlace = updatedTileToPlace;
-                        const tileToPlace = getElement('tile-to-place');
-                        tileToPlace.innerHTML = null;
-                        drawTileToPlace(updatedTileToPlace, tileToPlace);
-                    }
-                }
-            }
-        };
-
-        const rotate = getElement('rotate');
-        rotate.style.display = null;
-        rotate.onclick = () => {
-            if (gameState.tileToPlace) {
-                const updatedTileToPlace = rotateTile(gameState.tileToPlace);
-                gameState.tileToPlace = updatedTileToPlace;
-                const tileToPlace = getElement('tile-to-place');
-                tileToPlace.innerHTML = null;
-                drawTileToPlace(updatedTileToPlace, tileToPlace);
-            }
-        };
-    }
-
-    const tilesInStack = getElement('tiles-in-stack');
-    tilesInStack.innerHTML = gameState.stack.size;
 
     const world = getElement('world');
     world.innerHTML = null;
