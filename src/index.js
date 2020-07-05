@@ -7,12 +7,9 @@ let gameState = {
     extensions: [],
     seed: undefined,
     world: new Map(),
-    edges: new Set(),
+    nodeRelations: new Map(),
     tileToPlace: new Map(),
     stack: new Map(),
-    nodesA: [],
-    nodesB: [],
-    canConnect: undefined,
     turn: 0,
     phase: 'pick-tile',
     players: [

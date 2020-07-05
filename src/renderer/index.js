@@ -4,9 +4,27 @@ import {
     rotateTile,
     canConnectNodes
 } from '../engine/gameLogic';
-import { isNumber, isCoordinates } from '../util';
+import { isNumber, isCoordinates, isWorldElement } from '../util';
 
 const TILE_SIZE = 60;
+
+const NODE_SIZE = TILE_SIZE / 3;
+
+const NODE_ID_MAP = new Map([
+    [`0/0`, 0],
+    [`20/0`, 1],
+    [`40/0`, 2],
+    [`??/??`, 3],
+    [`??/??`, 4],
+    [`0/20`, 5],
+    [`20/20`, 6],
+    [`40/20`, 7],
+    [`??/??`, 8],
+    [`??/??`, 9],
+    [`0/40`, 10],
+    [`20/40`, 11],
+    [`40/40`, 12]
+]);
 
 const LEFT_PADDING_OFFSET = 240;
 const TOP_PADDING_OFFSET = 240;
@@ -210,8 +228,12 @@ function drawTileToPlace(tileToPlace, container) {
     container.append(tile);
 }
 
-function snapTileToPlaceToGrid(coordinate) {
+function snapToGrid(coordinate) {
     return Math.floor(coordinate / TILE_SIZE) * TILE_SIZE;
+}
+
+function snapToNode(coordinate) {
+    return Math.floor(coordinate / NODE_SIZE) * NODE_SIZE;
 }
 
 // TODO
@@ -245,7 +267,6 @@ export function initRender(gameState) {
             return;
         }
 
-        console.log(canPlaceTile);
         gameState.tileToPlace = tile;
         gameState.phase = 'place-tile';
 
@@ -299,7 +320,6 @@ export function initRender(gameState) {
                             return;
                         }
 
-                        console.log(canPlaceTile);
                         gameState.tileToPlace = tile;
                         gameState.phase = 'place-tile';
 
@@ -336,30 +356,75 @@ export function initRender(gameState) {
 
     const world = getElement('world');
     world.onmousemove = ({ pageX, pageY }) => {
-        if (gameState.phase === 'place-tile') {
-            const tileToPlace = getElement('tile-to-place');
-            const left = snapTileToPlaceToGrid(pageX);
-            const top = snapTileToPlaceToGrid(pageY);
+        switch (gameState.phase) {
+            case 'place-tile': {
+                const tileToPlace = getElement('tile-to-place');
+                const left = snapToGrid(pageX);
+                const top = snapToGrid(pageY);
 
-            if (left / TILE_SIZE < 0) {
-                return;
+                if (left / TILE_SIZE < 0) {
+                    return;
+                }
+
+                if (top / TILE_SIZE <= 0) {
+                    return;
+                }
+
+                tileToPlace.style.left = `${left}px`;
+                tileToPlace.style.top = `${top}px`;
+                break;
             }
+            case 'place-meeple': {
+                const left = snapToGrid(pageX);
+                const top = snapToGrid(pageY);
 
-            if (top / TILE_SIZE <= 0) {
-                return;
+                if (left / TILE_SIZE < 0) {
+                    return;
+                }
+
+                if (top / TILE_SIZE <= 0) {
+                    return;
+                }
+
+                const hoveredElements = document.elementsFromPoint(left, top);
+                const hoveredTileElement = hoveredElements.find(element =>
+                    isWorldElement(element.id)
+                );
+
+                if (!hoveredTileElement) {
+                    return;
+                }
+
+                const hoveredTileId = hoveredTileElement.id.replace(
+                    'world',
+                    ''
+                );
+
+                const hoveredTile = gameState.world.get(hoveredTileId);
+
+                const nodeX = snapToNode(pageX - left);
+                const nodeY = snapToNode(pageY - top);
+
+                const nodeIndex = NODE_ID_MAP.get(`${nodeX}/${nodeY}`);
+
+                const hoveredNode = hoveredTile.get(nodeIndex);
+
+                // TODO: Traverse node relations to get all the connected nodes
+                const hoveredNodeRelations = gameState.nodeRelations.get(
+                    `${hoveredTileId}/${nodeIndex}`
+                );
+
+                console.log({ hoveredTile, hoveredNode, hoveredNodeRelations });
+
+                break;
             }
-
-            tileToPlace.style.left = `${left}px`;
-            tileToPlace.style.top = `${top}px`;
         }
     };
 
     world.onclick = ({ pageX, pageY }) => {
         if (gameState.phase === 'place-tile') {
-            const x =
-                snapTileToPlaceToGrid(pageX - LEFT_PADDING_OFFSET) / TILE_SIZE;
-            const y =
-                snapTileToPlaceToGrid(pageY - TOP_PADDING_OFFSET) / TILE_SIZE;
+            const x = snapToGrid(pageX - LEFT_PADDING_OFFSET) / TILE_SIZE;
+            const y = snapToGrid(pageY - TOP_PADDING_OFFSET) / TILE_SIZE;
 
             const westCoordinates = `${x - 1}/${y}`;
             const westTile = gameState.world.get(westCoordinates);
@@ -392,56 +457,73 @@ export function initRender(gameState) {
                 return;
             }
 
+            const nodesA = [];
+            const nodesB = [];
+            let indexNodesA = [];
+            let indexNodesB = [];
+            let adjacentTilePosition = { x: 0, y: 0 };
+
             for (let [direction, tile] of adjacentTiles) {
-                let nodesA = [];
-                let nodesB = [];
                 switch (direction) {
                     case 'W': {
-                        nodesA = [
-                            gameState.tileToPlace.get(3),
-                            gameState.tileToPlace.get(5),
-                            gameState.tileToPlace.get(8)
-                        ];
-                        nodesB = [tile.get(4), tile.get(7), tile.get(9)];
-
+                        indexNodesA = [3, 5, 8];
+                        indexNodesB = [4, 7, 9];
+                        adjacentTilePosition = { x: x - 1, y };
                         break;
                     }
                     case 'E': {
-                        nodesA = [
-                            gameState.tileToPlace.get(4),
-                            gameState.tileToPlace.get(7),
-                            gameState.tileToPlace.get(9)
-                        ];
-                        nodesB = [tile.get(3), tile.get(5), tile.get(8)];
-
+                        indexNodesA = [4, 7, 9];
+                        indexNodesB = [3, 5, 8];
+                        adjacentTilePosition = { x: x + 1, y };
                         break;
                     }
                     case 'N': {
-                        nodesA = [
-                            gameState.tileToPlace.get(10),
-                            gameState.tileToPlace.get(11),
-                            gameState.tileToPlace.get(12)
-                        ];
-                        nodesB = [tile.get(0), tile.get(1), tile.get(2)];
-
+                        indexNodesA = [10, 11, 12];
+                        indexNodesB = [0, 1, 2];
+                        adjacentTilePosition = { x, y: y + 1 };
                         break;
                     }
                     case 'S': {
-                        nodesA = [
-                            gameState.tileToPlace.get(0),
-                            gameState.tileToPlace.get(1),
-                            gameState.tileToPlace.get(2)
-                        ];
-                        nodesB = [tile.get(10), tile.get(11), tile.get(12)];
-
+                        indexNodesA = [0, 1, 2];
+                        indexNodesB = [10, 11, 12];
+                        adjacentTilePosition = { x, y: y - 1 };
                         break;
                     }
+                }
+
+                for (let i = 0; i < indexNodesA.length; i++) {
+                    nodesA.push(gameState.tileToPlace.get(indexNodesA[i]));
+                }
+
+                for (let i = 0; i < indexNodesB.length; i++) {
+                    nodesB.push(tile.get(indexNodesB[i]));
                 }
 
                 const canConnect = canConnectNodes(nodesA, nodesB);
                 if (!canConnect) {
                     return;
                 }
+
+                indexNodesA.forEach((nodeIndex, index) => {
+                    const nodeRelationA = `${x}/${y}/${nodeIndex}`;
+                    const nodeRelationB = `${adjacentTilePosition.x}/${adjacentTilePosition.y}/${indexNodesB[index]}`;
+
+                    const existingNodeRelationA =
+                        gameState.nodeRelations.get(nodeRelationA) || [];
+
+                    gameState.nodeRelations.set(nodeRelationA, [
+                        ...existingNodeRelationA,
+                        nodeRelationB
+                    ]);
+
+                    const existingNodeRelationB =
+                        gameState.nodeRelations.get(nodeRelationB) || [];
+
+                    gameState.nodeRelations.set(nodeRelationB, [
+                        ...existingNodeRelationB,
+                        nodeRelationA
+                    ]);
+                });
             }
 
             const tileToPlace = getElement('tile-to-place');
@@ -452,6 +534,7 @@ export function initRender(gameState) {
             rotate.style.display = 'none';
 
             gameState.world.set(`${x}/${y}`, gameState.tileToPlace);
+
             gameState.tileToPlace = new Map();
             gameState.phase = 'place-meeple';
 
@@ -525,4 +608,6 @@ export function render(gameState) {
     const world = getElement('world');
     world.innerHTML = null;
     drawWorldTiles(gameState.world, world);
+
+    window.gameState = gameState;
 }
