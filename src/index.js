@@ -1,4 +1,9 @@
-import { generateTiles, pickStartTile, initRNG } from './engine/gameLogic';
+import {
+    generateTiles,
+    pickStartTile,
+    initRNG,
+    getInternalNodesWithTileId
+} from './engine/gameLogic';
 import { initRender, render } from './renderer';
 
 import './index.scss';
@@ -37,9 +42,16 @@ let gameState = {
 };
 
 function initGame() {
-    gameState.seed = initRNG();
+    const startTilePosition = '0/0';
+    const startTile = pickStartTile(gameState.extensions);
+
+    gameState.seed = initRNG(11875250475179788);
     gameState.stack = generateTiles(82);
-    gameState.world.set('0/0', pickStartTile(gameState.extensions));
+    gameState.nodeRelations = getInternalNodesWithTileId(
+        startTilePosition,
+        startTile
+    );
+    gameState.world.set(startTilePosition, startTile);
     initRender(gameState);
 }
 

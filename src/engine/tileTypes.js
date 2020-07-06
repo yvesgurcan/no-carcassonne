@@ -1,6 +1,22 @@
 import { EMPTY_NODE, CITY, ROAD, MONASTERY, RIVER } from './nodeTypes';
 import { isNumber } from '../util';
 
+const NEIGHBOR_NODES_MAP = new Map([
+    [0, [1, 3]],
+    [1, [0, 2, 6]],
+    [2, [1, 4]],
+    [3, [0, 5]],
+    [4, [2, 7]],
+    [5, [3, 6, 8]],
+    [6, [1, 5, 7, 11]],
+    [7, [4, 6, 9]],
+    [8, [5, 10]],
+    [9, [7, 12]],
+    [10, [8, 11]],
+    [11, [6, 10, 12]],
+    [12, [9, 11]]
+]);
+
 /**
  * @returns {Map} A tile where all nodes are populated with the default feature.
  */
@@ -16,26 +32,62 @@ function generateEmptyTileTemplate() {
 
 const EMPTY_TILE = generateEmptyTileTemplate();
 
+function generateTileNodeRelation(nodeIndex, tile) {
+    const nodeRelations = [];
+    const node = tile.get(nodeIndex);
+    const neighborNodeIndexes = NEIGHBOR_NODES_MAP.get(nodeIndex);
+
+    neighborNodeIndexes.forEach(neighborNodeIndex => {
+        const neighborNode = tile.get(neighborNodeIndex);
+        if (node.feature === neighborNode.feature) {
+            nodeRelations.push(neighborNodeIndex);
+        }
+    });
+
+    return nodeRelations;
+}
+
 /**
  *
  * @param {Array} tileData A list of nodes with specific features to generate the tile.
  * @returns {Map} A list of all the nodes that make the tile, including nodes using the default feature.
  */
 function generateTileTemplate(tileData) {
-    const connections = new Map(EMPTY_TILE);
-    tileData.map(([key, value]) => {
-        const connection = connections.get(key);
+    const tile = new Map(EMPTY_TILE);
+    tileData.forEach(([key, value]) => {
+        const connection = tile.get(key);
 
         // Only numbered properties are nodes
         if (isNumber(key)) {
             // Keep other properties on the node
-            connections.set(key, { ...connection, feature: value });
+            tile.set(key, { ...connection, feature: value });
         } else {
-            connections.set(key, value);
+            tile.set(key, value);
         }
     });
 
-    return connections;
+    const nodeRelations = new Map();
+    tile.forEach((value, key) => {
+        // Only numbered properties are nodes
+        if (isNumber(key)) {
+            // Keep other properties on the node
+            nodeRelations.set(key, generateTileNodeRelation(key, tile));
+        }
+    });
+
+    tile.set('nodeRelations', nodeRelations);
+    return tile;
+}
+
+function generateTileTemplatesFromModifierMaps() {
+    let tiles = [];
+    for (const modifierMap in TILE_TYPE_MODIFIER_MAPS) {
+        const tile = generateTileTemplate(TILE_TYPE_MODIFIER_MAPS[modifierMap]);
+        tile.set('name', modifierMap);
+        tiles.push(tile);
+    }
+
+    return tiles;
 }
 
 const TILE_TYPE_MODIFIER_MAPS = {
@@ -191,17 +243,6 @@ const TILE_TYPE_MODIFIER_MAPS = {
         [6, MONASTERY]
     ]
 };
-
-function generateTileTemplatesFromModifierMaps() {
-    let tiles = [];
-    for (const modifierMap in TILE_TYPE_MODIFIER_MAPS) {
-        const tile = generateTileTemplate(TILE_TYPE_MODIFIER_MAPS[modifierMap]);
-        tile.set('name', modifierMap);
-        tiles.push(tile);
-    }
-
-    return tiles;
-}
 
 export const START_TILE = generateTileTemplate([
     ['name', 'Start tile'],

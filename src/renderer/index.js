@@ -2,7 +2,8 @@ import { CITY, ROAD, MONASTERY, RIVER } from '../engine/nodeTypes';
 import {
     removeTileFromStack,
     rotateTile,
-    canConnectNodes
+    canConnectNodes,
+    getInternalNodesWithTileId
 } from '../engine/gameLogic';
 import { isNumber, isCoordinates, isWorldElement } from '../util';
 
@@ -532,6 +533,17 @@ export function initRender(gameState) {
 
             const rotate = getElement('rotate');
             rotate.style.display = 'none';
+
+            const internalNodeRelations = getInternalNodesWithTileId(
+                `${x}/${y}`,
+                gameState.tileToPlace
+            );
+
+            const worldNodeRelations = gameState.nodeRelations;
+            gameState.nodeRelations = new Map([
+                ...worldNodeRelations,
+                ...internalNodeRelations
+            ]);
 
             gameState.world.set(`${x}/${y}`, gameState.tileToPlace);
 

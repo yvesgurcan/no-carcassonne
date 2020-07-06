@@ -4,6 +4,7 @@ import {
     START_TILE
 } from './tileTypes';
 import RNG from './RNG';
+import { isNumber } from '../util';
 
 let rng = undefined;
 
@@ -86,6 +87,8 @@ export function rotateTile(tile) {
     rotatedTile.set(11, tile.get(7));
     rotatedTile.set(12, tile.get(4));
 
+    // TODO: Rotate internal nodeRelations
+
     return rotatedTile;
 }
 
@@ -110,4 +113,16 @@ export function canConnectNodes(nodesA, nodesB) {
     }
 
     return true;
+}
+
+export function getInternalNodesWithTileId(tileId, tile) {
+    const updatedNodeRelations = new Map();
+    tile.get('nodeRelations').forEach((values, key) => {
+        if (isNumber(key)) {
+            const updatedValues = values.map(v => `${tileId}/${v}`);
+            updatedNodeRelations.set(`${tileId}/${key}`, updatedValues);
+        }
+    });
+
+    return updatedNodeRelations;
 }
