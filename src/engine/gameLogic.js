@@ -115,14 +115,36 @@ export function canConnectNodes(nodesA, nodesB) {
     return true;
 }
 
-export function getInternalNodesWithTileId(tileId, tile) {
+export function getInternalNodeRelationsWithTileIndex(tileIndex, tile) {
     const updatedNodeRelations = new Map();
     tile.get('nodeRelations').forEach((values, key) => {
         if (isNumber(key)) {
-            const updatedValues = values.map(v => `${tileId}/${v}`);
-            updatedNodeRelations.set(`${tileId}/${key}`, updatedValues);
+            const updatedValues = values.map(v => `${tileIndex}/${v}`);
+            updatedNodeRelations.set(`${tileIndex}/${key}`, updatedValues);
         }
     });
 
     return updatedNodeRelations;
+}
+
+export function traverseConnectedNodes(originNodeIndex, worldNodeRelations) {
+    const originNodeRelations = gameState.nodeRelations.get(originNodeIndex);
+
+    let connectedNotes = new Set([originNodeIndex, ...originNodeRelations]);
+    let nodesToTraverse = new Set([originNodeIndex, ...originNodeRelations]);
+    let visitedNodes = new Set();
+    while (nodesToTraverse.size !== 0) {
+        const firstNodeId = nodesToTraverse.values().next().value;
+        const nodes = worldNodeRelations.get(firstNodeId);
+
+        if (!visitedNodes.has(firstNodeId)) {
+            nodesToTraverse = new Set([...nodesToTraverse, ...nodes]);
+            visitedNodes.add(firstNodeId);
+            connectedNotes.add(firstNodeId);
+        }
+
+        nodesToTraverse.delete(firstNodeId);
+    }
+
+    return connectedNotes;
 }

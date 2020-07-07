@@ -2,7 +2,7 @@ import {
     generateTiles,
     pickStartTile,
     initRNG,
-    getInternalNodesWithTileId
+    getInternalNodeRelationsWithTileIndex
 } from './engine/gameLogic';
 import { initRender, render } from './renderer';
 
@@ -13,6 +13,7 @@ let gameState = {
     seed: undefined,
     world: new Map(),
     nodeRelations: new Map(),
+    nodeOverlay: new Set(),
     tileToPlace: new Map(),
     stack: new Map(),
     turn: 0,
@@ -47,7 +48,7 @@ function initGame() {
 
     gameState.seed = initRNG(11875250475179788);
     gameState.stack = generateTiles(82);
-    gameState.nodeRelations = getInternalNodesWithTileId(
+    gameState.nodeRelations = getInternalNodeRelationsWithTileIndex(
         startTilePosition,
         startTile
     );
