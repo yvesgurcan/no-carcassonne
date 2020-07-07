@@ -18,6 +18,15 @@ body {
     z-index: 1;
 }
 
+#world-overlay {
+    padding-top: 240px;
+    padding-left: 240px;
+    min-width: 100vw;
+    min-height: 100vh;
+    position: absolute;
+    pointer-events: none;
+}
+
 #world {
     padding-top: 240px;
     padding-left: 240px;
@@ -28,12 +37,13 @@ body {
 #tile-to-place {
     position: absolute;
     pointer-events: none;
+    border: 1px solid;
+    height: 60px;
+    width: 60px;
 }
 
-#stack {
+.action-button {
     position: fixed;
-    top: calc(60px + 20px);
-    right: 20px;
     background: rgb(30, 30, 30, 0.7);
     border: 1px rgb(0, 0, 0, 0.7) solid;
     width: 75px;
@@ -42,7 +52,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     cursor: pointer;
+    user-select: none;
+    z-index: 2;
+}
+
+#stack {
+    top: calc(60px + 20px);
+    right: 20px;
 
     div {
         text-align: center;
@@ -50,49 +68,16 @@ body {
 }
 
 #rotate {
-    position: fixed;
     top: calc(60px + 20px);
     right: 20px;
-    background: rgb(30, 30, 30, 0.7);
-    border: 1px rgb(0, 0, 0, 0.7) solid;
-    width: 75px;
-    height: 75px;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
 }
 
 #place-meeple {
-    position: fixed;
     top: calc(60px + 20px);
     right: 20px;
-    background: rgb(30, 30, 30, 0.7);
-    border: 1px rgb(0, 0, 0, 0.7) solid;
-    width: 75px;
-    height: 75px;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
 }
 
 #end-turn {
-    position: fixed;
     top: calc(60px + 20px + 75px + 20px);
     right: 20px;
-    background: rgb(30, 30, 30, 0.7);
-    border: 1px rgb(0, 0, 0, 0.7) solid;
-    width: 75px;
-    height: 75px;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
 }
