@@ -1,4 +1,11 @@
-import { EMPTY_NODE, CITY, ROAD, MONASTERY, RIVER } from './nodeTypes';
+import {
+    EMPTY_NODE,
+    CITY,
+    ROAD,
+    CROSSROAD,
+    MONASTERY,
+    RIVER
+} from './nodeTypes';
 import { isNumber } from '../util';
 
 const NEIGHBOR_NODES_MAP = new Map([
@@ -146,13 +153,13 @@ const TILE_TYPE_MODIFIER_MAPS = {
     'Three-way crossroad': [
         [1, ROAD],
         [5, ROAD],
-        [6, ROAD],
+        [6, CROSSROAD],
         [7, ROAD]
     ],
     'Four-way crossroad': [
         [1, ROAD],
         [5, ROAD],
-        [6, ROAD],
+        [6, CROSSROAD],
         [7, ROAD],
         [11, ROAD]
     ],
